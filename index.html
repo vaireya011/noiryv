@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NOIRYV — Vaireya</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg0:   #080610;
+      --bg1:   #0d0b15;
+      --bg2:   #111019;
+      --bg3:   #16131f;
+      --bg4:   #1b1827;
+      --line:  rgba(196,160,90,.1);
+      --muted: #7a7088;
+      --text:  #d8cfbf;
+      --rose:  #c4a0a8;
+      --gold:  #c4a05a;
+      --gold2: #dfc088;
+      --blush: #e8c8c0;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Jost',sans-serif;background:var(--bg0);color:var(--text);overflow-x:hidden}
+    img{display:block;max-width:100%;height:auto}
+    a{text-decoration:none;color:inherit}
+
+    /* grain overlay */
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+      opacity:.032;mix-blend-mode:screen}
+
+    /* ── cursor ── */
+    @media(pointer:fine){
+      *{cursor:none}
+      #cur{width:6px;height:6px;background:var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;will-change:transform}
+      #cur-r{width:28px;height:28px;border:1px solid rgba(196,160,90,.35);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;will-change:transform;transition:transform .28s ease}
+    }
+
+    /* ── sticky ── */
+    #sticky{position:fixed;bottom:2rem;right:2rem;z-index:500;
+      background:var(--gold);color:var(--bg0);font-family:'Jost',sans-serif;
+      font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;padding:.72rem 1.5rem;
+      box-shadow:0 8px 32px rgba(196,160,90,.28);
+      opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s,background .25s;display:block}
+    #sticky.show{opacity:1;transform:translateY(0)}
+    #sticky:hover{background:var(--gold2)}
+
+    /* ── nav ── */
+    nav{position:fixed;top:0;width:100%;z-index:300;padding:1.6rem 5rem;
+      display:flex;align-items:center;justify-content:space-between;transition:all .5s}
+    nav.sc{background:rgba(8,6,16,.94);backdrop-filter:blur(20px);padding:1rem 5rem;
+      border-bottom:1px solid var(--line)}
+    .nav-brand{font-family:'Cinzel',serif;font-size:1rem;letter-spacing:.5em;color:rgba(216,207,191,.9)}
+    .nl{display:flex;gap:2.8rem}
+    .nl a{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(216,207,191,.28);
+      transition:color .3s;position:relative}
+    .nl a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;
+      background:var(--gold);transition:width .35s}
+    .nl a:hover{color:rgba(216,207,191,.8)}
+    .nl a:hover::after{width:100%}
+    .nav-india{font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--gold);border:1px solid rgba(196,160,90,.22);padding:.4rem 1rem;transition:all .3s}
+    .nav-india:hover{background:rgba(196,160,90,.07);border-color:var(--gold)}
+    .hbg{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:.3rem;cursor:pointer}
+    .hbg span{width:20px;height:1px;background:var(--text);display:block;transition:.3s}
+    .hbg.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+    .hbg.open span:nth-child(2){opacity:0}
+    .hbg.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+    .mob{display:none;position:fixed;inset:0;background:rgba(8,6,16,.98);z-index:290;
+      flex-direction:column;align-items:center;justify-content:center;gap:3rem}
+    .mob.open{display:flex}
+    .mob a{font-family:'Cinzel',serif;font-size:1.3rem;letter-spacing:.28em;
+      color:rgba(216,207,191,.8);transition:color .3s}
+    .mob a:hover{color:var(--gold)}
+
+    /* ── HERO ── */
+    #hero{height:100vh;position:relative;overflow:hidden;display:flex;align-items:flex-end}
+    .hbg-img{position:absolute;inset:0}
+    .hbg-img img{width:100%;height:100%;object-fit:cover;object-position:center top;
+      transform:scale(1.1);animation:slowZoom 22s ease forwards}
+    .hbg-img::after{content:'';position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(8,6,16,1) 0%,rgba(8,6,16,.55) 35%,rgba(8,6,16,.08) 100%)}
+    .hbg-img::before{content:'';position:absolute;inset:0;
+      background:linear-gradient(to right,rgba(8,6,16,.6) 0%,transparent 60%)}
+    .h-content{position:relative;z-index:2;width:100%;padding:0 5rem 7rem}
+    .h-pre{font-size:.52rem;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);
+      margin-bottom:1.6rem;opacity:0;animation:fadeUp .8s .4s forwards;
+      display:flex;align-items:center;gap:.8rem}
+    .h-pre::before{content:'';width:30px;height:1px;background:var(--gold);opacity:.6}
+    .h-name{font-family:'Cormorant Garamond',serif;
+      font-size:clamp(4.5rem,9vw,10rem);font-weight:300;line-height:.88;
+      color:rgba(216,207,191,.95);opacity:0;animation:fadeUp 1s .6s forwards}
+    .h-name em{font-style:italic;color:var(--rose);display:block;
+      font-size:.46em;margin-top:.4rem;letter-spacing:.05em;font-weight:300}
+    .h-rule{width:0;height:1px;background:linear-gradient(to right,var(--gold),transparent);
+      margin:2rem 0;animation:expandW 1.2s .9s forwards}
+    .h-tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(.95rem,1.6vw,1.25rem);
+      font-style:italic;color:rgba(216,207,191,.38);
+      opacity:0;animation:fadeUp 1s 1.1s forwards;max-width:480px;line-height:1.8}
+    .h-ctas{display:flex;gap:1rem;margin-top:2.6rem;
+      opacity:0;animation:fadeUp 1s 1.3s forwards;flex-wrap:wrap}
+    .btn-g{padding:.88rem 2.4rem;background:var(--gold);color:var(--bg0);
+      font-family:'Jost',sans-serif;font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;
+      transition:background .3s,transform .25s;display:inline-block;border:none;cursor:pointer}
+    .btn-g:hover{background:var(--gold2);transform:translateY(-3px)}
+    .btn-o{padding:.88rem 2.4rem;background:transparent;color:rgba(216,207,191,.5);
+      font-family:'Jost',sans-serif;font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;
+      border:1px solid rgba(216,207,191,.14);transition:all .3s;display:inline-block}
+    .btn-o:hover{border-color:var(--rose);color:var(--rose);transform:translateY(-3px)}
+
+    /* cinematic scroll indicator */
+    .h-scroll{position:absolute;right:4.5rem;bottom:7rem;z-index:3;
+      opacity:0;animation:fadeIn 1s 2s forwards}
+    .hs-ring{width:48px;height:48px;border-radius:50%;
+      border:1px solid rgba(196,160,90,.3);
+      display:flex;align-items:center;justify-content:center;
+      animation:ringPulse 3s ease-in-out infinite;position:relative}
+    .hs-ring::before{content:'';position:absolute;inset:6px;border-radius:50%;
+      border:1px solid rgba(196,160,90,.15);animation:ringPulse 3s ease-in-out infinite .5s}
+    .hs-ring::after{content:'✦';font-size:.55rem;color:var(--gold);
+      animation:starSpin 8s linear infinite;display:block}
+    .hs-txt{font-size:.42rem;letter-spacing:.28em;text-transform:uppercase;
+      color:rgba(196,160,90,.4);margin-top:.6rem;text-align:center}
+
+    /* ── TICKER ── */
+    .ticker{background:var(--gold);padding:.48rem 0;overflow:hidden}
+    .ticker-t{display:flex;animation:marquee 28s linear infinite;white-space:nowrap}
+    .t-i{font-size:.48rem;letter-spacing:.32em;text-transform:uppercase;
+      color:var(--bg0);padding:0 2.5rem;font-weight:500}
+
+    /* ── SHARED ── */
+    .s-tag{font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;
+      color:var(--gold);display:block;margin-bottom:.8rem}
+    .s-h{font-family:'Cormorant Garamond',serif;
+      font-size:clamp(2rem,3.2vw,3.2rem);font-weight:300;line-height:1.15;color:var(--text)}
+    .s-h em{font-style:italic;color:var(--rose)}
+    .s-h strong{font-weight:600}
+    .s-rule{width:38px;height:1px;background:var(--gold);margin:1.4rem 0;opacity:.65}
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .9s ease,transform .9s ease}
+    .reveal.vis{opacity:1;transform:translateY(0)}
+    .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+    /* ── WORLD (ABOUT) ── */
+    #world{padding:9rem 5rem;display:grid;grid-template-columns:1fr 1.05fr;
+      gap:7rem;align-items:center;background:var(--bg1);position:relative;overflow:hidden}
+    #world::after{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse at 80% 50%,rgba(196,160,90,.03) 0%,transparent 70%);
+      pointer-events:none}
+    .w-imgs{position:relative;height:600px}
+    .wi-a{position:absolute;top:0;left:0;width:70%;height:86%;overflow:hidden}
+    .wi-a img{width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .8s}
+    .wi-a:hover img{transform:scale(1.04)}
+    .wi-b{position:absolute;bottom:0;right:0;width:46%;height:49%;overflow:hidden;
+      border:3px solid var(--bg1)}
+    .wi-b img{width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .8s}
+    .wi-b:hover img{transform:scale(1.04)}
+    .wi-line{position:absolute;top:-2rem;left:73%;width:1px;height:85px;
+      background:var(--gold);opacity:.28}
+    .wi-quote{position:absolute;bottom:2rem;left:-2rem;background:var(--bg0);
+      padding:1.4rem 1.8rem;border-left:2px solid var(--gold);max-width:240px;z-index:5}
+    .wq{font-family:'Cormorant Garamond',serif;font-size:.95rem;font-style:italic;
+      color:var(--text);line-height:1.75;font-weight:300}
+    .wq-s{font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;
+      color:var(--gold);margin-top:.6rem}
+    .w-body{font-size:.87rem;line-height:2.15;color:var(--muted);font-weight:300;margin-top:1rem}
+    .w-body+.w-body{margin-top:.8rem}
+    .w-traits{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1.8rem}
+    .trait{font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+      border:1px solid rgba(122,112,136,.18);padding:.38rem .85rem;transition:all .3s}
+    .trait:hover{border-color:var(--gold);color:var(--gold)}
+    .w-homes{margin-top:1.8rem;display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+    .wh{text-align:center;padding:1rem .4rem;border:1px solid var(--line);transition:border-color .3s,background .3s}
+    .wh:hover{border-color:rgba(196,160,90,.28);background:rgba(196,160,90,.03)}
+    .wh-ic{font-size:1.15rem;margin-bottom:.3rem}
+    .wh-n{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+    /* ── PINBOARD ── */
+    #pinboard{padding:9rem 5rem;background:var(--bg0)}
+    .pb-hd{display:grid;grid-template-columns:1fr auto;align-items:end;margin-bottom:4rem}
+    .pb-hd .s-h{color:var(--text)}
+    .pb-hd .s-h em{color:var(--gold2)}
+    .pb-hd-r{text-align:right}
+    .pb-all{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--muted);border-bottom:1px solid rgba(122,112,136,.25);
+      padding-bottom:2px;transition:color .3s,border-color .3s}
+    .pb-all:hover{color:var(--gold);border-color:var(--gold)}
+    .pb-sub{font-size:.72rem;color:rgba(122,112,136,.55);font-weight:300;margin-top:.35rem}
+    .pb-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:auto auto;gap:1.2rem}
+    .pb-card{background:var(--bg2);overflow:hidden;position:relative;
+      cursor:pointer;transition:transform .38s,box-shadow .38s}
+    .pb-card:hover{transform:translateY(-5px);box-shadow:0 24px 64px rgba(0,0,0,.5)}
+    .pb-card.ft{grid-row:1/3}
+    .pb-img{overflow:hidden}
+    .pb-img img{width:100%;object-fit:cover;transition:transform .7s,filter .4s;filter:brightness(.8)}
+    .pb-card:hover .pb-img img{transform:scale(1.06);filter:brightness(.95)}
+    .pb-card.ft .pb-img img{height:500px}
+    .pb-card:not(.ft) .pb-img img{height:200px}
+    .pb-body{padding:1.4rem}
+    .pb-meta{display:flex;align-items:center;gap:.7rem;margin-bottom:.65rem}
+    .pb-date{font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+    .pb-sep{width:2px;height:2px;border-radius:50%;background:rgba(216,207,191,.2)}
+    .pb-loc{font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+    .pb-title{font-family:'Cormorant Garamond',serif;font-weight:300;
+      color:var(--text);line-height:1.3}
+    .pb-card.ft .pb-title{font-size:1.65rem}
+    .pb-card:not(.ft) .pb-title{font-size:1.15rem}
+    .pb-exc{font-size:.76rem;color:rgba(216,207,191,.35);line-height:1.9;
+      margin-top:.55rem;font-weight:300}
+    .pb-ft{display:flex;align-items:center;justify-content:space-between;
+      margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(216,207,191,.06)}
+    .pb-tag{font-size:.48rem;letter-spacing:.15em;text-transform:uppercase;
+      color:var(--rose);border:1px solid rgba(196,160,168,.18);padding:.2rem .55rem}
+    .pb-rd{font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;
+      color:var(--muted);display:flex;align-items:center;gap:.4rem;transition:color .3s}
+    .pb-rd svg{width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:1.5;
+      stroke-linecap:round;stroke-linejoin:round;transition:transform .3s}
+    .pb-card:hover .pb-rd{color:var(--gold)}
+    .pb-card:hover .pb-rd svg{transform:translateX(4px)}
+    .pb-card.ft::before{content:'Latest Entry';position:absolute;top:1rem;left:1rem;
+      background:var(--gold);color:var(--bg0);font-size:.46rem;letter-spacing:.2em;
+      text-transform:uppercase;padding:.22rem .62rem;z-index:5}
+
+    /* ── SHOP ── */
+    #shop{padding:9rem 5rem;background:var(--bg1)}
+    .sh-hd{margin-bottom:4rem}
+    .sh-intro{font-size:.86rem;color:var(--muted);line-height:1.95;max-width:480px;
+      margin-top:.8rem;font-weight:300}
+    .sh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+    .sc{background:var(--bg2);overflow:hidden;position:relative;transition:transform .38s}
+    .sc:hover{transform:translateY(-6px)}
+    .sc-img{aspect-ratio:3/4;overflow:hidden;position:relative}
+    .sc-img img{width:100%;height:100%;object-fit:cover;object-position:center top;
+      transition:transform .7s,filter .4s}
+    .sc:hover .sc-img img{transform:scale(1.07);filter:brightness(.78)}
+    .sc-ov{position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(8,6,16,.95) 0%,rgba(8,6,16,.2) 55%,transparent 100%);
+      opacity:0;transition:opacity .45s;display:flex;flex-direction:column;
+      justify-content:flex-end;padding:1.5rem}
+    .sc:hover .sc-ov{opacity:1}
+    .sc-why{font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;
+      color:rgba(216,207,191,.75);line-height:1.75}
+    .sc-lnk{display:inline-block;margin-top:.75rem;font-size:.52rem;letter-spacing:.18em;
+      text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(196,160,90,.35);
+      padding-bottom:2px;transition:border-color .3s}
+    .sc-lnk:hover{border-color:var(--gold)}
+    .sc-badge{position:absolute;top:.9rem;left:.9rem;background:var(--bg0);
+      color:var(--gold);font-size:.46rem;letter-spacing:.18em;text-transform:uppercase;
+      padding:.22rem .62rem;z-index:2}
+    .sc-body{padding:1.4rem}
+    .sc-cat{font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+    .sc-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--text);margin-top:.25rem}
+    .sc-ctx{font-size:.76rem;color:var(--muted);margin-top:.4rem;line-height:1.7;
+      font-weight:300;font-style:italic}
+
+    /* ── PINTEREST ── */
+    #pinterest{padding:9rem 5rem;background:var(--bg2)}
+    .pin-hd{text-align:center;margin-bottom:4rem}
+    .pin-hd .s-h{color:var(--text)}
+    .pin-hd .s-h em{color:var(--rose)}
+    .pin-hd .s-rule{margin:1.2rem auto}
+    .pin-sub{font-size:.82rem;color:rgba(122,112,136,.7);margin-top:.7rem;line-height:1.9;font-weight:300}
+    .pin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;align-items:start}
+    .pin-tile{overflow:hidden;position:relative;cursor:pointer}
+    .pin-tile img{width:100%;object-fit:cover;transition:transform .65s,filter .35s;
+      filter:brightness(.72) saturate(.88)}
+    .pin-tile:hover img{transform:scale(1.08);filter:brightness(1) saturate(1.1)}
+    .pin-ov{position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(8,6,16,.92) 0%,transparent 55%);
+      opacity:0;transition:opacity .3s;display:flex;flex-direction:column;
+      justify-content:flex-end;padding:1rem}
+    .pin-tile:hover .pin-ov{opacity:1}
+    .pin-lbl{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text);
+      font-style:italic;margin-bottom:.3rem}
+    .pin-sv{display:inline-flex;align-items:center;gap:.3rem;background:#e60023;
+      color:#fff;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;
+      padding:.2rem .55rem;width:fit-content}
+    .pin-tile:nth-child(2){margin-top:2.5rem}
+    .pin-tile:nth-child(4){margin-top:-2rem}
+    .pin-follow{text-align:center;margin-top:3rem}
+    .btn-pin{display:inline-flex;align-items:center;gap:.7rem;padding:.9rem 2.6rem;
+      background:#e60023;color:#fff;font-family:'Jost',sans-serif;font-size:.6rem;
+      letter-spacing:.18em;text-transform:uppercase;transition:background .3s,transform .25s}
+    .btn-pin:hover{background:#c0001e;transform:translateY(-3px)}
+
+    /* ── INSTAGRAM ── */
+    #instagram{padding:7rem 5rem;background:var(--bg1);text-align:center}
+    .ig-h{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,5vw,5.5rem);
+      font-weight:300;color:var(--text);line-height:1}
+    .ig-h em{font-style:italic;color:var(--rose)}
+    .ig-sub{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
+      color:var(--muted);margin-top:.6rem}
+    .ig-row{display:grid;grid-template-columns:repeat(5,1fr);gap:.35rem;margin-top:2rem}
+    .ig-c{aspect-ratio:1;overflow:hidden;position:relative}
+    .ig-c img{width:100%;height:100%;object-fit:cover;transition:transform .45s,filter .3s;
+      filter:saturate(.82)}
+    .ig-c:hover img{transform:scale(1.1);filter:saturate(1.15)}
+    .ig-ov{position:absolute;inset:0;background:rgba(8,6,16,.52);opacity:0;
+      transition:opacity .3s;display:flex;align-items:center;justify-content:center}
+    .ig-c:hover .ig-ov{opacity:1}
+    .ig-ov svg{width:22px;height:22px;stroke:rgba(216,207,191,.8);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+    /* ── NEWSLETTER ── */
+    #newsletter{padding:8rem 5rem;background:var(--bg0);position:relative;overflow:hidden;text-align:center}
+    #newsletter::before{content:'';position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);width:700px;height:700px;border-radius:50%;
+      background:radial-gradient(circle,rgba(196,160,90,.05) 0%,transparent 65%);pointer-events:none}
+    .nl-wrap{max-width:560px;margin:0 auto;position:relative;z-index:2}
+    .nl-ic{font-size:1.8rem;margin-bottom:1.4rem}
+    .nl-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.8rem);
+      font-weight:300;color:var(--text);line-height:1.2}
+    .nl-title em{font-style:italic;color:var(--gold2)}
+    .nl-sub{font-size:.82rem;color:rgba(122,112,136,.7);margin-top:.8rem;
+      line-height:1.95;font-weight:300}
+    .nl-form{margin-top:2.4rem;display:flex;max-width:420px;margin-left:auto;margin-right:auto}
+    .nl-in{flex:1;background:rgba(216,207,191,.04);border:1px solid rgba(196,160,90,.15);
+      border-right:none;padding:.9rem 1.4rem;font-family:'Jost',sans-serif;
+      font-size:.82rem;color:var(--text);outline:none;transition:border-color .3s}
+    .nl-in::placeholder{color:rgba(122,112,136,.5)}
+    .nl-in:focus{border-color:rgba(196,160,90,.4)}
+    .nl-btn{padding:.9rem 1.8rem;background:var(--gold);color:var(--bg0);
+      font-family:'Jost',sans-serif;font-size:.56rem;letter-spacing:.2em;
+      text-transform:uppercase;border:none;white-space:nowrap;transition:background .3s;cursor:pointer}
+    .nl-btn:hover{background:var(--gold2)}
+    .nl-perks{display:flex;justify-content:center;gap:2.5rem;margin-top:1.8rem;flex-wrap:wrap}
+    .nl-perk{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+      color:rgba(122,112,136,.5);display:flex;align-items:center;gap:.4rem}
+    .nl-perk::before{content:'✦';color:var(--gold);font-size:.44rem}
+
+    /* ── INDIA ── */
+    #india{padding:6rem 5rem;
+      background:linear-gradient(135deg,var(--bg0) 0%,#180a00 50%,var(--bg0) 100%);
+      border-top:1px solid rgba(212,82,42,.1);
+      display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+    .ind-tag{font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;
+      color:#d4522a;display:block;margin-bottom:.8rem}
+    .ind-h{font-family:'Cormorant Garamond',serif;
+      font-size:clamp(1.8rem,3vw,2.9rem);font-weight:300;color:#f5ebe0;line-height:1.2}
+    .ind-h em{font-style:italic;color:#ff9a6c}
+    .ind-body{font-size:.83rem;color:rgba(245,235,224,.35);line-height:2;
+      margin-top:1rem;font-weight:300}
+    .ind-flags{display:flex;align-items:center;gap:.6rem;margin-top:1.4rem;font-size:1.4rem}
+    .btn-india{display:inline-flex;align-items:center;gap:.6rem;margin-top:2rem;
+      padding:.85rem 2.2rem;background:#d4522a;color:#fff;
+      font-family:'Jost',sans-serif;font-size:.58rem;letter-spacing:.2em;
+      text-transform:uppercase;transition:background .3s,transform .25s}
+    .btn-india:hover{background:#e06030;transform:translateY(-2px)}
+    .ind-r{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+    .ind-img{overflow:hidden}
+    .ind-img img{width:100%;height:130px;object-fit:cover;
+      filter:sepia(.3) saturate(.7);transition:transform .55s,filter .3s}
+    .ind-img:hover img{transform:scale(1.07);filter:sepia(0) saturate(1.05)}
+
+    /* ── CONTACT ── */
+    #contact{padding:9rem 5rem;background:var(--bg2);
+      display:grid;grid-template-columns:1fr 1fr;gap:6rem}
+    .ct-tag{font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;
+      color:var(--gold);display:block;margin-bottom:.8rem}
+    .ct-h{font-family:'Cormorant Garamond',serif;
+      font-size:clamp(2rem,3.5vw,3.4rem);font-weight:300;line-height:1.1;color:var(--text)}
+    .ct-h em{font-style:italic;color:var(--rose)}
+    .ct-body{font-size:.83rem;color:var(--muted);line-height:2;margin-top:1.1rem;font-weight:300}
+    .ct-items{margin-top:2rem;display:flex;flex-direction:column;gap:.9rem}
+    .ct-row{display:flex;align-items:flex-start;gap:.9rem}
+    .ct-ic{width:32px;height:32px;border:1px solid rgba(196,160,168,.22);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ct-ic svg{width:12px;height:12px;stroke:var(--rose);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+    .ct-d{font-size:.75rem;color:var(--muted)}
+    .ct-n{font-size:.58rem;color:rgba(122,112,136,.4);font-style:italic;margin-top:.14rem}
+    .cf{display:flex;flex-direction:column;gap:1.1rem}
+    .fg{display:flex;flex-direction:column;gap:.28rem}
+    .fg label{font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+    .fg input,.fg textarea,.fg select{
+      background:transparent;border:none;border-bottom:1px solid rgba(196,160,168,.2);
+      padding:.6rem 0;font-family:'Jost',sans-serif;font-size:.83rem;color:var(--text);
+      outline:none;transition:border-color .3s;-webkit-appearance:none;appearance:none;width:100%}
+    .fg input::placeholder,.fg textarea::placeholder{color:rgba(122,112,136,.4)}
+    .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--rose)}
+    .fg textarea{resize:none;height:78px}
+    .fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7088' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;color:var(--text)}
+    .fg select option{background:var(--bg2);color:var(--text)}
+    .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+    .btn-sub{margin-top:.4rem;align-self:flex-start;padding:.88rem 2.5rem;
+      background:var(--bg0);color:var(--text);font-family:'Jost',sans-serif;
+      font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;
+      border:1px solid var(--line);transition:all .3s;cursor:pointer}
+    .btn-sub:hover{background:rgba(196,160,90,.08);border-color:var(--gold);color:var(--gold)}
+
+    /* ── FOOTER ── */
+    footer{background:var(--bg0);padding:4rem 5rem 2rem;
+      border-top:1px solid var(--line)}
+    .ft-top{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:3rem;
+      padding-bottom:3rem;border-bottom:1px solid rgba(216,207,191,.04)}
+    .ft-wm{font-family:'Cinzel',serif;font-size:1rem;letter-spacing:.48em;
+      color:rgba(216,207,191,.7);margin-bottom:.8rem}
+    .ft-tl{font-family:'Cormorant Garamond',serif;font-size:.92rem;font-style:italic;
+      color:rgba(122,112,136,.5);line-height:1.7}
+    .ft-ch{font-size:.5rem;letter-spacing:.22em;text-transform:uppercase;
+      color:var(--gold);margin-bottom:1.1rem}
+    .ft-lx{display:flex;flex-direction:column;gap:.52rem}
+    .ft-lx a{font-size:.7rem;color:rgba(216,207,191,.22);transition:color .3s;letter-spacing:.04em}
+    .ft-lx a:hover{color:rgba(216,207,191,.7)}
+    .ft-bot{display:flex;align-items:center;justify-content:space-between;
+      padding-top:1.8rem;flex-wrap:wrap;gap:1rem}
+    .ft-copy{font-size:.54rem;color:rgba(216,207,191,.12);letter-spacing:.08em}
+    .ft-soc{display:flex;gap:1.4rem}
+    .ft-soc a{font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;
+      color:rgba(216,207,191,.18);transition:color .3s}
+    .ft-soc a:hover{color:var(--gold)}
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes expandW{from{width:0}to{width:44px}}
+    @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    @keyframes slowZoom{from{transform:scale(1.1)}to{transform:scale(1)}}
+    @keyframes ringPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.18);opacity:1}}
+    @keyframes starSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:1100px){
+      nav{padding:1rem 2.5rem}nav.sc{padding:.9rem 2.5rem}
+      .nl,.nav-india{display:none}.hbg{display:flex}
+      #hero .h-content{padding:0 2.5rem 5rem}.h-scroll{right:2.5rem;bottom:5rem}
+      #world{grid-template-columns:1fr;padding:5rem 2.5rem;gap:3rem}
+      .w-imgs{height:300px}.wi-quote{display:none}
+      #pinboard{padding:5rem 2.5rem}.pb-hd{grid-template-columns:1fr;gap:1rem}
+      .pb-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+      .pb-card.ft{grid-column:1/3;grid-row:auto}.pb-card.ft .pb-img img{height:260px}
+      #shop{padding:5rem 2.5rem}.sh-grid{grid-template-columns:1fr 1fr}
+      #pinterest{padding:5rem 2.5rem}.pin-grid{grid-template-columns:1fr 1fr;gap:.7rem}
+      .pin-tile:nth-child(2),.pin-tile:nth-child(4){margin-top:0}
+      #instagram{padding:4rem 2.5rem}.ig-row{grid-template-columns:repeat(3,1fr)}
+      #newsletter{padding:5rem 2.5rem}
+      #india{grid-template-columns:1fr;padding:4rem 2.5rem}.ind-r{display:none}
+      #contact{grid-template-columns:1fr;padding:5rem 2.5rem;gap:3rem}
+      footer{padding:3rem 2.5rem 2rem}.ft-top{grid-template-columns:1fr 1fr;gap:2rem}
+      .ft-bot{flex-direction:column;text-align:center}
+    }
+    @media(max-width:600px){
+      nav{padding:.9rem 1.3rem}nav.sc{padding:.8rem 1.3rem}
+      .h-content{padding:0 1.3rem 4rem!important}.h-scroll{display:none}
+      #world{padding:4rem 1.3rem}.w-imgs{height:240px}.w-homes{grid-template-columns:1fr 1fr}
+      #pinboard{padding:4rem 1.3rem}.pb-grid{grid-template-columns:1fr}.pb-card.ft{grid-column:auto}
+      #shop{padding:4rem 1.3rem}.sh-grid{grid-template-columns:1fr}
+      #pinterest{padding:4rem 1.3rem}
+      #instagram{padding:3.5rem 1.3rem}.ig-row{grid-template-columns:repeat(2,1fr)}
+      #newsletter{padding:4rem 1.3rem}.nl-form{flex-direction:column}
+      .nl-in{border-right:1px solid rgba(196,160,90,.15);border-bottom:none}
+      #india{padding:3.5rem 1.3rem}
+      #contact{padding:4rem 1.3rem}.fg-row{grid-template-columns:1fr}
+      footer{padding:2.5rem 1.3rem 1.5rem}.ft-top{grid-template-columns:1fr}
+      #sticky{bottom:1.2rem;right:1.2rem;padding:.62rem 1.2rem;font-size:.52rem}
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cur"></div><div id="cur-r"></div>
+  <a href="#shop" id="sticky">Shop Her World</a>
+
+  <!-- mobile menu -->
+  <div class="mob" id="mob">
+    <a href="#world" onclick="cm()">The World</a>
+    <a href="#pinboard" onclick="cm()">Today</a>
+    <a href="#shop" onclick="cm()">Shop</a>
+    <a href="#pinterest" onclick="cm()">Pinterest</a>
+    <a href="#contact" onclick="cm()">Collab</a>
+    <a href="#india" onclick="cm()" style="color:var(--gold)">🇮🇳 India</a>
+  </div>
+
+  <!-- nav -->
+  <nav id="nav">
+    <div class="nav-brand">NOIRYV</div>
+    <div class="nl">
+      <a href="#world">The World</a>
+      <a href="#pinboard">Today</a>
+      <a href="#shop">Shop</a>
+      <a href="#pinterest">Pinterest</a>
+      <a href="#contact">Collab</a>
+    </div>
+    <a href="#india" class="nav-india">🇮🇳 India</a>
+    <button class="hbg" id="hbg" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section id="hero">
+    <div class="hbg-img">
+      <!-- 📁 images/hero.jpg → Image 12 (London trench) -->
+      <img src="images/hero.jpg" alt="Vaireya"/>
+    </div>
+    <div class="h-content">
+      <p class="h-pre">NOIRYV</p>
+      <h1 class="h-name">
+        Vaireya
+        <em>a world that feels like a dream you've had before</em>
+      </h1>
+      <div class="h-rule"></div>
+      <p class="h-tagline">"Her mornings are golden. Her evenings are soft. She finds beauty in the ordinary and makes it last forever."</p>
+      <div class="h-ctas">
+        <a href="#world" class="btn-g">Enter Her World</a>
+        <a href="#pinboard" class="btn-o">What's She Doing Today</a>
+      </div>
+    </div>
+    <!-- cinematic animated scroll indicator -->
+    <div class="h-scroll">
+      <div class="hs-ring"></div>
+      <div class="hs-txt">explore</div>
+    </div>
+  </section>
+
+  <!-- ticker -->
+  <div class="ticker"><div class="ticker-t">
+    <span class="t-i">Vaireya's World ✦</span><span class="t-i">NOIRYV ✦</span>
+    <span class="t-i">Golden Mornings ✦</span><span class="t-i">Soft Evenings ✦</span>
+    <span class="t-i">Beauty · Fashion · Home ✦</span><span class="t-i">Amazon UK ✦</span>
+    <span class="t-i">Hindi Indie ✦</span><span class="t-i">Forest Home ✦</span>
+    <span class="t-i">Vaireya's World ✦</span><span class="t-i">NOIRYV ✦</span>
+    <span class="t-i">Golden Mornings ✦</span><span class="t-i">Soft Evenings ✦</span>
+    <span class="t-i">Beauty · Fashion · Home ✦</span><span class="t-i">Amazon UK ✦</span>
+    <span class="t-i">Hindi Indie ✦</span><span class="t-i">Forest Home ✦</span>
+  </div></div>
+
+  <!-- ═══ WORLD ═══ -->
+  <section id="world">
+    <div class="w-imgs reveal">
+      <!-- 📁 images/about-main.jpg → Image 16 (café, warm smile) -->
+      <div class="wi-a"><img src="images/about-main.jpg" alt="Vaireya"/></div>
+      <!-- 📁 images/about-accent.jpg → Image 15 (vanity mirror) -->
+      <div class="wi-b"><img src="images/about-accent.jpg" alt="Vaireya"/></div>
+      <div class="wi-line"></div>
+      <div class="wi-quote">
+        <div class="wq">"Rain on the window. Prateek Kuhad on repeat. This is where I feel most like myself."</div>
+        <div class="wq-s">— Vaireya</div>
+      </div>
+    </div>
+    <div>
+      <span class="s-tag reveal">✦ The World of Vaireya</span>
+      <h2 class="s-h reveal d1">She lives where<br><em>everything is soft</em></h2>
+      <div class="s-rule reveal d2"></div>
+      <p class="w-body reveal d2">Vaireya's mornings start slow. There's always music — something that sits somewhere between Hindi film and bedroom indie. She photographs the light through her curtains before she does anything else. Her world has a city apartment, a forest home, a villa. She moves between them the way some people move between moods.</p>
+      <p class="w-body reveal d3">The things she recommends are things she lives with. The candle on her shelf. The coat she wore on a Tuesday with nowhere to be. The serum that made her skin feel like itself again. Nothing is for the camera. Everything just happens to be beautiful.</p>
+      <div class="w-traits reveal d3">
+        <span class="trait">Dreamy</span><span class="trait">Introverted</span>
+        <span class="trait">Cinematic</span><span class="trait">Soft</span>
+        <span class="trait">Hindi-Indie</span><span class="trait">Aesthetic</span>
+        <span class="trait">Girlish</span><span class="trait">Kind</span>
+      </div>
+      <div class="w-homes reveal">
+        <div class="wh"><div class="wh-ic">🏙️</div><div class="wh-n">City Apartment</div></div>
+        <div class="wh"><div class="wh-ic">🌲</div><div class="wh-n">Forest Home</div></div>
+        <div class="wh"><div class="wh-ic">🌿</div><div class="wh-n">The Villa</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PINBOARD ═══ -->
+  <section id="pinboard">
+    <div class="pb-hd">
+      <div class="reveal">
+        <span class="s-tag">✦ Today in Her World</span>
+        <h2 class="s-h">What's on her <em>mind</em></h2>
+      </div>
+      <div class="pb-hd-r reveal">
+        <a href="#" class="pb-all">All Entries ↗</a>
+        <div class="pb-sub">She writes from her world</div>
+      </div>
+    </div>
+    <div class="pb-grid">
+
+      <div class="pb-card ft reveal">
+        <!-- 📁 images/pin-lifestyle.jpg → Image 10 (morning kitchen) -->
+        <div class="pb-img"><img src="images/pin-lifestyle.jpg" alt=""/></div>
+        <div class="pb-body">
+          <div class="pb-meta">
+            <span class="pb-date">This Morning</span><span class="pb-sep"></span>
+            <span class="pb-loc">City Apartment</span>
+          </div>
+          <div class="pb-title">The kitchen at 7am smells like croissants and everything feels possible</div>
+          <div class="pb-exc">I put on my silk pyjamas and stood by the window for a long time. The city was already loud but my kitchen was still soft. I made coffee, put on Prateek Kuhad, and just... stayed there. On my counter — the serum I've been using for three weeks now. My skin has never felt more like mine. I'll link it below for anyone who asks.</div>
+          <div class="pb-ft">
+            <span class="pb-tag">Morning Ritual</span>
+            <span class="pb-rd">Read her world <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pb-card reveal d1">
+        <!-- 📁 images/pin-home.jpg → Image 1 (home styling) -->
+        <div class="pb-img"><img src="images/pin-home.jpg" alt=""/></div>
+        <div class="pb-body">
+          <div class="pb-meta"><span class="pb-date">Yesterday</span><span class="pb-sep"></span><span class="pb-loc">Forest Home</span></div>
+          <div class="pb-title">Rain on the windows. A candle. Everything was quiet and I didn't want it to end.</div>
+          <div class="pb-exc">Nature does something to me that nothing else can. The forest home smells different when it rains.</div>
+          <div class="pb-ft"><span class="pb-tag">Forest Life</span><span class="pb-rd">Read <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
+        </div>
+      </div>
+
+      <div class="pb-card reveal d2">
+        <!-- 📁 images/pin-beauty.jpg → Image 6 (bold lip) -->
+        <div class="pb-img"><img src="images/pin-beauty.jpg" alt=""/></div>
+        <div class="pb-body">
+          <div class="pb-meta"><span class="pb-date">2 days ago</span><span class="pb-sep"></span><span class="pb-loc">Vanity Room</span></div>
+          <div class="pb-title">I wasn't going anywhere. I just put on the red lip because I wanted to feel something.</div>
+          <div class="pb-exc">Some days the only thing I do for myself is put on a good lip and sit with my camera. That's enough.</div>
+          <div class="pb-ft"><span class="pb-tag">Beauty</span><span class="pb-rd">Read <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
+        </div>
+      </div>
+
+      <div class="pb-card reveal d2">
+        <!-- 📁 images/pin-fashion.jpg → Image 7 (London park) -->
+        <div class="pb-img"><img src="images/pin-fashion.jpg" alt=""/></div>
+        <div class="pb-body">
+          <div class="pb-meta"><span class="pb-date">3 days ago</span><span class="pb-sep"></span><span class="pb-loc">The City</span></div>
+          <div class="pb-title">I wore the linen shirt and walked for an hour with nowhere to be.</div>
+          <div class="pb-exc">The streets in my world have this particular light on autumn afternoons. I found the shirt on Amazon and I've worn it four times this week.</div>
+          <div class="pb-ft"><span class="pb-tag">Fashion</span><span class="pb-rd">Read <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ SHOP ═══ -->
+  <section id="shop">
+    <div class="sh-hd reveal">
+      <span class="s-tag">✦ From Her World to Yours</span>
+      <h2 class="s-h">Things Vaireya <em>actually owns</em></h2>
+      <div class="s-rule"></div>
+      <p class="sh-intro">These aren't recommendations. They're hers. She found them, fell for them, and they became part of her world. Every link is Amazon UK.</p>
+    </div>
+    <div class="sh-grid">
+      <div class="sc reveal">
+        <div class="sc-img">
+          <!-- 📁 images/shop-beauty.jpg → Image 13 (skincare, smiling) -->
+          <img src="images/shop-beauty.jpg" alt="Beauty"/>
+          <span class="sc-badge">Beauty</span>
+          <div class="sc-ov">
+            <div class="sc-why">"I use this every morning before the rest of the world starts. It lives on my vanity."</div>
+            <a href="#" class="sc-lnk">Find it on Amazon UK →</a>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-cat">Skincare · Morning Ritual</div>
+          <div class="sc-name">The Glow Edit</div>
+          <div class="sc-ctx">"She reaches for these before she opens the curtains."</div>
+        </div>
+      </div>
+      <div class="sc reveal d1">
+        <div class="sc-img">
+          <!-- 📁 images/shop-fashion.jpg → Image 18 (ivory silk dress) -->
+          <img src="images/shop-fashion.jpg" alt="Fashion"/>
+          <span class="sc-badge">Fashion</span>
+          <div class="sc-ov">
+            <div class="sc-why">"I wore this on a Sunday with nowhere to be. That's exactly why I love it."</div>
+            <a href="#" class="sc-lnk">Find it on Amazon UK →</a>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-cat">Style · Her Wardrobe</div>
+          <div class="sc-name">The Comfort Edit</div>
+          <div class="sc-ctx">"Pieces she wears because they feel like home."</div>
+        </div>
+      </div>
+      <div class="sc reveal d2">
+        <div class="sc-img">
+          <!-- 📁 images/shop-home.jpg → Image 11 (cozy sofa) -->
+          <img src="images/shop-home.jpg" alt="Home"/>
+          <span class="sc-badge">Home</span>
+          <div class="sc-ov">
+            <div class="sc-why">"My apartment looks this way because of the small things. The throw. The lamp. The vase."</div>
+            <a href="#" class="sc-lnk">Find it on Amazon UK →</a>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-cat">Home · Her Aesthetic</div>
+          <div class="sc-name">The Nest Edit</div>
+          <div class="sc-ctx">"Every corner of her home is intentional."</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PINTEREST ═══ -->
+  <section id="pinterest">
+    <div class="pin-hd reveal">
+      <span class="s-tag">✦ Her Camera Roll</span>
+      <h2 class="s-h">Vaireya on <em>Pinterest</em></h2>
+      <div class="s-rule" style="margin:1.2rem auto;background:var(--rose)"></div>
+      <p class="pin-sub">She photographs her world. She pins what she loves. Follow to see it as it happens.</p>
+    </div>
+    <div class="pin-grid">
+      <div class="pin-tile reveal">
+        <img src="images/pin-beauty.jpg" alt="" style="height:310px"/>
+        <div class="pin-ov"><span class="pin-lbl">Her Vanity</span><span class="pin-sv">📌 Save</span></div>
+      </div>
+      <div class="pin-tile reveal d1">
+        <img src="images/pin-fashion.jpg" alt="" style="height:265px"/>
+        <div class="pin-ov"><span class="pin-lbl">Her City</span><span class="pin-sv">📌 Save</span></div>
+      </div>
+      <div class="pin-tile reveal d2">
+        <img src="images/pin-home.jpg" alt="" style="height:330px"/>
+        <div class="pin-ov"><span class="pin-lbl">Her Home</span><span class="pin-sv">📌 Save</span></div>
+      </div>
+      <div class="pin-tile reveal d3">
+        <img src="images/pin-lifestyle.jpg" alt="" style="height:285px"/>
+        <div class="pin-ov"><span class="pin-lbl">Her Morning</span><span class="pin-sv">📌 Save</span></div>
+      </div>
+    </div>
+    <div class="pin-follow reveal">
+      <a href="https://pin.it/4qFf6VMre" target="_blank" class="btn-pin">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+        Follow Vaireya on Pinterest
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ INSTAGRAM ═══ -->
+  <section id="instagram">
+    <span class="s-tag reveal" style="display:block;text-align:center">✦ Her Daily Life</span>
+    <div class="ig-h reveal d1">@<em>vaireya</em></div>
+    <p class="ig-sub reveal d2">She posts frames from her world every day</p>
+    <div class="ig-row">
+      <div class="ig-c reveal"><img src="images/insta-1.jpg" alt=""/><div class="ig-ov"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+      <div class="ig-c reveal d1"><img src="images/insta-2.jpg" alt=""/><div class="ig-ov"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+      <div class="ig-c reveal d2"><img src="images/insta-3.jpg" alt=""/><div class="ig-ov"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+      <div class="ig-c reveal d3"><img src="images/insta-4.jpg" alt=""/><div class="ig-ov"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+      <div class="ig-c reveal d4"><img src="images/insta-5.jpg" alt=""/><div class="ig-ov"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div></div>
+    </div>
+    <div style="text-align:center;margin-top:2rem" class="reveal">
+      <a href="#" class="btn-g">Follow @vaireya</a>
+    </div>
+  </section>
+
+  <!-- ═══ NEWSLETTER ═══ -->
+  <section id="newsletter">
+    <div class="nl-wrap reveal">
+      <div class="nl-ic">🖤</div>
+      <h2 class="nl-title">Letters from <em>her world</em></h2>
+      <p class="nl-sub">She writes from where she is — what she's wearing, what she's feeling, what she found. One email, every week. No brand speak. Just Vaireya.</p>
+      <div class="nl-form">
+        <input class="nl-in" type="email" placeholder="your@email.com" id="nlEmail"/>
+        <button class="nl-btn" onclick="nlSub()">Enter Her World</button>
+      </div>
+      <div class="nl-perks">
+        <span class="nl-perk">Weekly letters</span>
+        <span class="nl-perk">Her latest finds</span>
+        <span class="nl-perk">Zero noise</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ INDIA ═══ -->
+  <section id="india">
+    <div class="reveal">
+      <span class="ind-tag">🇮🇳 Vaireya India — Coming Soon</span>
+      <h2 class="ind-h">Her world has a<br><em>Mumbai chapter</em></h2>
+      <p class="ind-body">She visits India in her world. The monsoons, the jasmine in the evening air, the chaos that somehow feels like home. A dedicated India space — Amazon India, her South Asian aesthetic — is coming very soon.</p>
+      <div class="ind-flags"><span>🇬🇧</span><span style="color:rgba(212,82,42,.45);font-size:.8rem">→</span><span>🇮🇳</span></div>
+      <a href="#newsletter" class="btn-india">Join the India Waitlist</a>
+    </div>
+    <div class="ind-r reveal d1">
+      <div class="ind-img"><img src="images/pin-lifestyle.jpg" alt=""/></div>
+      <div class="ind-img"><img src="images/pin-beauty.jpg" alt=""/></div>
+      <div class="ind-img"><img src="images/insta-1.jpg" alt=""/></div>
+      <div class="ind-img"><img src="images/pin-fashion.jpg" alt=""/></div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ═══ -->
+  <section id="contact">
+    <div class="reveal">
+      <span class="ct-tag">✦ Enter Her Universe</span>
+      <h2 class="ct-h">Work with<br><em>NOIRYV</em></h2>
+      <div class="s-rule"></div>
+      <p class="ct-body">Vaireya lives with the things she recommends. If your brand belongs in her world — her apartment, her mornings, her camera roll — let's talk. UK and India both welcome.</p>
+      <div class="ct-items">
+        <div class="ct-row"><div class="ct-ic"><svg viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><div><div class="ct-d">Business email</div><div class="ct-n">Coming soon 🔜</div></div></div>
+        <div class="ct-row"><div class="ct-ic"><svg viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div><div class="ct-d">UK 🇬🇧 & India 🇮🇳</div></div>
+        <div class="ct-row"><div class="ct-ic"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div><div><div class="ct-d">@vaireya</div><div class="ct-n">Coming soon 🔜</div></div></div>
+      </div>
+    </div>
+    <div class="reveal d1">
+      <div class="cf">
+        <div class="fg-row">
+          <div class="fg"><label>Your Name</label><input type="text" placeholder="Jane Smith"/></div>
+          <div class="fg"><label>Brand</label><input type="text" placeholder="Brand Name"/></div>
+        </div>
+        <div class="fg"><label>Email</label><input type="email" placeholder="you@brand.com"/></div>
+        <div class="fg"><label>Collaboration Type</label>
+          <select><option>Affiliate Partnership</option><option>Sponsored Content</option><option>Product in Her World</option><option>Brand Ambassador</option><option>Other</option></select></div>
+        <div class="fg"><label>Your Market</label>
+          <select><option>UK 🇬🇧</option><option>India 🇮🇳</option><option>Both</option></select></div>
+        <div class="fg"><label>Does It Belong in Her World?</label>
+          <textarea placeholder="Tell us about your brand and why Vaireya would genuinely love it..."></textarea></div>
+        <button class="btn-sub" id="subBtn">Send to NOIRYV</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="ft-top">
+      <div>
+        <div class="ft-wm">NOIRYV</div>
+        <div class="ft-tl">"She is everything my soul craves."</div>
+      </div>
+      <div>
+        <div class="ft-ch">Her World</div>
+        <div class="ft-lx">
+          <a href="#world">The World</a><a href="#pinboard">Today's Entry</a>
+          <a href="#shop">Her Shop</a><a href="#india">India Chapter</a>
+        </div>
+      </div>
+      <div>
+        <div class="ft-ch">Follow</div>
+        <div class="ft-lx">
+          <a href="https://pin.it/4qFf6VMre" target="_blank">Pinterest ↗</a>
+          <a href="#">Instagram ↗</a><a href="#">Amazon Storefront ↗</a>
+        </div>
+      </div>
+      <div>
+        <div class="ft-ch">NOIRYV</div>
+        <div class="ft-lx">
+          <a href="#contact">Work Together</a>
+          <a href="#newsletter">Weekly Letters</a><a href="#india">India Waitlist</a>
+        </div>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <div class="ft-copy">© 2025 NOIRYV · Affiliate links may earn a small commission</div>
+      <div class="ft-soc">
+        <a href="https://pin.it/4qFf6VMre" target="_blank">Pinterest</a>
+        <a href="#">Instagram</a><a href="#">Amazon</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // cursor
+    const cur=document.getElementById('cur'),ring=document.getElementById('cur-r');
+    if(cur){let mx=0,my=0,rx=0,ry=0;document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.transform=`translate(${mx-3}px,${my-3}px)`});setInterval(()=>{rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.transform=`translate(${rx-14}px,${ry-14}px)`},16)}
+    // nav
+    const nav=document.getElementById('nav');
+    function upNav(){const s=window.scrollY,w=window.innerWidth;nav.classList.toggle('sc',s>60);if(w<=600)nav.style.padding=s>60?'.8rem 1.3rem':'1rem 1.3rem';else if(w<=1100)nav.style.padding=s>60?'.9rem 2.5rem':'1rem 2.5rem';else nav.style.padding=s>60?'1rem 5rem':'1.6rem 5rem'}
+    window.addEventListener('scroll',upNav);window.addEventListener('resize',upNav);upNav();
+    // hamburger
+    const hbg=document.getElementById('hbg'),mob=document.getElementById('mob');
+    hbg.addEventListener('click',()=>{hbg.classList.toggle('open');mob.classList.toggle('open');document.body.style.overflow=mob.classList.contains('open')?'hidden':''});
+    function cm(){hbg.classList.remove('open');mob.classList.remove('open');document.body.style.overflow=''}
+    // sticky
+    const sty=document.getElementById('sticky');
+    window.addEventListener('scroll',()=>sty.classList.toggle('show',window.scrollY>700));
+    // reveal
+    const rvs=document.querySelectorAll('.reveal');
+    const ro=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ro.unobserve(e.target)}})},{threshold:.06});
+    rvs.forEach(el=>ro.observe(el));
+    // newsletter
+    function nlSub(){const v=document.getElementById('nlEmail').value;if(!v||!v.includes('@')){alert('Please enter a valid email');return}alert('✦ Welcome. Her letters will find you soon.');document.getElementById('nlEmail').value=''}
+    // form
+    document.getElementById('subBtn').addEventListener('click',()=>alert('✦ Received. If your brand belongs in her world, we will be in touch.'));
+  </script>
+</body>
+</html>
